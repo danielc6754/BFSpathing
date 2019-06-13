@@ -68,16 +68,16 @@ private:
 
 		if (IsFocused()) {
 			if (GetKey(VK_RIGHT).bPressed) {
-				nUserPosX += 1;
+				nChangeX = 1;
 			}
 			if (GetKey(VK_LEFT).bPressed) {
-				nUserPosX -= 1;
+				nChangeX = -1;
 			}
 			if (GetKey(VK_DOWN).bPressed) {
-				nUserPosY += 1;
+				nChangeY = 1;
 			}
 			if (GetKey(VK_UP).bPressed) {
-				nUserPosY -= 1;
+				nChangeY = -1;
 			}
 			if (GetKey(VK_ADD).bPressed) {
 				nRange += 1;
@@ -93,9 +93,16 @@ private:
 			}
 		}
 
-		
+		// Max Range Movement
+		// Using user position and center position, we can calculate the max movement from the center
+		// by adding the change in position to the user and subtracting it from the center position to get
+		//  the total movements made from the center
+		if ((abs((nUserPosX + nChangeX) - nOldPosX) + abs((nUserPosY + nChangeY) - nOldPosY)) <= nRange) {
+			nUserPosX += nChangeX;
+			nUserPosY += nChangeY;
+		}
 
-			// Clamp User
+		// Clamp User
 		if (nUserPosX >= nWidth) {
 			nUserPosX = nWidth - 1;
 		}
@@ -109,7 +116,6 @@ private:
 			nUserPosY = 0;
 		}
 
-		
 		// Drawing variables
 		int nTileWidth = 4;
 		int nTileHeight = 4;
@@ -150,6 +156,8 @@ private:
 	}
 
 	void InRange(vector<sNodes*>* result) {
+		// Create two temporary arrays to allow for User and Board Tile interaction while
+		// allowing for Board to be independent of User
 		bool* bVisited = new bool[nWidth * nHeight];
 		int* nCurrentMovement = new int[nWidth * nHeight];
 
